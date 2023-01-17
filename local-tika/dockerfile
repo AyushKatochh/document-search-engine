@@ -1,0 +1,16 @@
+FROM node:alpine
+
+WORKDIR /my-app
+COPY package.json .
+COPY package-lock.json .
+COPY app.js .
+
+
+RUN npm install
+RUN npm install express
+RUN npm install axios
+RUN npm install express-fileupload
+
+EXPOSE 3004
+CMD [ "npm", "start" ]
+

@@ -1,0 +1,15 @@
+version : '3.3'
+services  :
+  local-tika:
+    build: .
+    links:
+    - "tika"
+    ports:
+    - "3004:3004"
+    environment:
+      - TIKA_HOST=tika
+      - TIKA_PORT=9998
+  tika:
+    image : apache/tika
+    ports:
+      - "9998:9998"

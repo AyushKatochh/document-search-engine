@@ -1,0 +1,57 @@
+body {
+    background: url('./images.jpg');
+}
+
+form {
+    width: 600px;
+    margin: 0 auto;
+    padding: 150px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 150px;
+    border-radius: 12px;
+    background-color: rgba(73, 64, 187, 0.4); ;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    font-size: 30px;
+    background-color: rgba(73, 64, 187, 0.8);
+}
+
+input[type="submit"] {
+    width: 100%;
+    background-color: #4649FF;
+    color: white;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 30px;
+}
+
+input[type="submit"]:hover {
+    background-color:#4649FF;
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+input[type="file"], input[type="submit"] {
+    width: 100%;
+}
+
