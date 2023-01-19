@@ -72,7 +72,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
     
     console.log(docs);  
       console.log('Data indexed successfully');
-      res.status(200).send('Data indexed successfully');
+        res.status(200).redirect(`http://localhost:9200/${results._index}/${results._type}/${results._id}`)
+
     })
     .catch(err => {
       console.error(err);
