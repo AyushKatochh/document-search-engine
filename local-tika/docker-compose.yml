@@ -34,6 +34,8 @@ services  :
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       discovery.type: single-node    
+      xpack.security.enabled: false
+      discovery.type=single: node
     logging:
       driver: none  
     ports:
@@ -54,6 +56,8 @@ services  :
       - Elasticsearch  
     networks:
       - elk
+    links :
+      - Elasticsearch 
 volumes:
   elastic_data: {}
 

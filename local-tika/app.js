@@ -36,55 +36,36 @@ app.get('/', (req, res) => {
   res.render('index');
 })
 
+let intervalId;
 app.post('/upload', upload.single('file'), (req, res) => {
-  // Get file path from uploads folder
-  const filePath = 'database/' + req.file.originalname;
-  
-  // Send the file to the Apache Tika server for text extraction
-  axios({
-    method: 'put',
-    // url:'http://host.docker.internal:9998/tika',
-    url:'http://localhost:9998/tika', 
-    data: fs.createReadStream(filePath),
-    headers: { 'Content-Type': 'application/octet-stream' }
-  })
-  .then(response => {
-    // Extract text from response
-  //   const text = response.data;
-  //   console.log(text);
-  //   res.redirect("/");
-  // })
-  // .catch(error => {
-  //   console.log(error);
-  // });
-  
-  client.index({
-    index: 'document-data',
-    type: 'text',
-    body: {
-      text: response.data
-    }
-  })
-   .then((results) => {
-    const docs = [];
-    
-      docs.push(results);
-    
-    console.log(docs);  
+  intervalId=setInterval(async () => {
+    try {
+      const filePath = 'database/' + req.file.originalname;
+      const response = await axios({
+        method: 'put',
+        url: 'http://localhost:9998/tika',
+        data: fs.createReadStream(filePath),
+        headers: { 'Content-Type': 'application/octet-stream' }
+      });
+      const results = await client.index({
+        index: 'document-data',
+        type: 'text',
+        body: {
+          text: response.data
+        }
+      });
       console.log('Data indexed successfully');
-      res.status(200).send('Data indexed successfully');
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).send('Error indexing data');
-    });
-  })
-  .catch(err => {
-    console.error(err);
-    res.status(500).send('Error extracting text data');
-  });
+      console.log(results);
+    } catch (error) {
+      console.error(error);
+    }
+  }, 480000);  // 120000 milliseconds = 2 minutes
 });
+
+
+  clearInterval(intervalId);
 const PORT= 3004
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
