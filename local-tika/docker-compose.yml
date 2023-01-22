@@ -5,7 +5,7 @@ services  :
     build: .
     links:
     - "tika"
-    - "Elasticsearch"
+    - "elasticsearch"
     ports:
     - "3004:3004"
     environment:
@@ -14,7 +14,7 @@ services  :
       - NODE_ENV=local
       - ES_HOST=elasticsearch
       - NODE_PORT=3000
-      - ELASTIC_URL=http://elasticsearch:9200      
+      - ELASTIC_URL=http://elasticsearch:9200 #may be incorrect     
     networks:
       - elk      
   
@@ -25,41 +25,45 @@ services  :
     networks:
       - elk
 
-  Elasticsearch:
-    image: elasticsearch:7.16.2
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
     container_name: elasticsearch
-    restart: always
-    volumes:
-    - elastic_data:/usr/share/elasticsearch/data/
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      discovery.type: single-node    
-      xpack.security.enabled: false
-      discovery.type=single: node
-    logging:
-      driver: none  
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
-    - '9200:9200'
-    - '9300:9300'
+      - 9200:9200
+      - 9300:9300
     networks:
       - elk
 
-  Kibana:
-    image: kibana:7.16.2
+  kibana:
     container_name: kibana
-    restart: always       
-    ports:
-    - '5601:5601'
+    image: docker.elastic.co/kibana/kibana:7.4.0
     environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200  
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
     depends_on:
-      - Elasticsearch  
+      - elasticsearch
     networks:
       - elk
-    links :
-      - Elasticsearch 
+
 volumes:
-  elastic_data: {}
+  elasticsearch-data:
+    driver: local
 
 networks:
-  elk:    
+  elk:
+    driver: bridge    

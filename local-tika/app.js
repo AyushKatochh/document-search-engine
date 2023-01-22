@@ -2,7 +2,8 @@ const express = require('express');
 const axios = require('axios');
 const fs = require('fs');
 const { Client } = require("elasticsearch");
-const elasticUrl = "http://localhost:9200";
+//const elasticUrl = "http://localhost:9200";
+const elasticUrl = "http://host.docker.internal:9200";
 const multer = require('multer');
 const ejs = require('ejs')
 const esclient   = new Client({ node: elasticUrl });
@@ -11,8 +12,8 @@ const elasticsearch = require('elasticsearch');
 const app = express();
 
 const client = new elasticsearch.Client({
-  host: 'http://localhost:9200'
-  // host: 'http://host.docker.internal:9200'
+ // host: 'http://localhost:9200'
+  host: 'http://host.docker.internal:9200'
 });
 
 app.use(express.json())
@@ -36,6 +37,7 @@ app.get('/', (req, res) => {
   res.render('index');
 })
 
+let docs = [];
 let intervalId;
 app.post('/upload', upload.single('file'), (req, res) => {
   intervalId=setInterval(async () => {
@@ -43,29 +45,40 @@ app.post('/upload', upload.single('file'), (req, res) => {
       const filePath = 'database/' + req.file.originalname;
       const response = await axios({
         method: 'put',
-        url: 'http://localhost:9998/tika',
+        //url: 'http://localhost:9998/tika',
+        url: 'http://host.docker.internal:9998/tika',      
         data: fs.createReadStream(filePath),
         headers: { 'Content-Type': 'application/octet-stream' }
       });
       const results = await client.index({
-        index: 'document-data',
+        index: 'data',
         type: 'text',
+        id: req.file.originalname,  // use unique identifier
         body: {
           text: response.data
-        }
+        },
+        refresh: "true" //immediately available for search
       });
-      console.log('Data indexed successfully');
-      console.log(results);
+    
+    if (docs.indexOf(results._id) === -1) {
+        docs.push(results._id); //save the _id of the indexed document
+        console.log('Data indexed successfully');
+        console.log(docs);
+        console.log(results);
+      } else {
+        console.log('Document already exists');
+      }
     } catch (error) {
       console.error(error);
     }
-  }, 480000);  // 120000 milliseconds = 2 minutes
+  }, 60000);  // 120000 milliseconds = 2 minutes
 });
 
-
+// clear the interval when the app is closed
+app.on("close", () => {
   clearInterval(intervalId);
+});
 const PORT= 3004
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
