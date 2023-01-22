@@ -12,8 +12,8 @@ const elasticsearch = require('elasticsearch');
 const app = express();
 
 const client = new elasticsearch.Client({
- // host: 'http://localhost:9200'
-  host: 'http://host.docker.internal:9200'
+  // host: 'http://localhost:9200'
+   host: 'http://host.docker.internal:9200'
 });
 
 app.use(express.json())
@@ -37,19 +37,47 @@ app.get('/', (req, res) => {
   res.render('index');
 })
 
+app.get('/search', async (req, res) => {
+  const query = req.query.q;
+  if (query) {
+    try {
+      const results = await client.search({
+        index: 'data',
+        type: 'text',
+        body: {
+          query: {
+            match: {
+              text: query
+            }
+          }
+        }
+      });
+      res.json(results.hits.hits);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error searching for documents.');
+    }
+  } else {
+    res.render('search', { docs });
+  }
+});
+
+
 let docs = [];
 let intervalId;
 app.post('/upload', upload.single('file'), (req, res) => {
   intervalId=setInterval(async () => {
     try {
       const filePath = 'database/' + req.file.originalname;
-      const response = await axios({
+       const response = await axios({
         method: 'put',
-        //url: 'http://localhost:9998/tika',
-        url: 'http://host.docker.internal:9998/tika',      
+        // url: 'http://localhost:9998/tika',
+         url: 'http://host.docker.internal:9998/tika',      
         data: fs.createReadStream(filePath),
-        headers: { 'Content-Type': 'application/octet-stream' }
+        headers: { 'Content-Type': 'application/octet-stream',
+                   'Accept': 'text/plain' }
       });
+      
       const results = await client.index({
         index: 'data',
         type: 'text',
@@ -63,16 +91,19 @@ app.post('/upload', upload.single('file'), (req, res) => {
     if (docs.indexOf(results._id) === -1) {
         docs.push(results._id); //save the _id of the indexed document
         console.log('Data indexed successfully');
+
         console.log(docs);
         console.log(results);
       } else {
         console.log('Document already exists');
       }
+      res.render('search', { q });
     } catch (error) {
       console.error(error);
     }
   }, 60000);  // 120000 milliseconds = 2 minutes
 });
+
 
 // clear the interval when the app is closed
 app.on("close", () => {

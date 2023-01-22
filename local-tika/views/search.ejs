@@ -1,0 +1,7 @@
+<head>
+   <link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+<form action="/search?q=<%= typeof q !== 'undefined' ? 'q=' + q : '' %>" method="GET">
+  <input type="text" name="q" placeholder="Search...">
+  <button type="submit">Search</button>
+</form>
