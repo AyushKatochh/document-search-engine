@@ -2,8 +2,9 @@ const express = require('express');
 const axios = require('axios');
 const fs = require('fs');
 const { Client } = require("elasticsearch");
-//const elasticUrl = "http://localhost:9200";
-const elasticUrl = "http://host.docker.internal:9200";
+const elasticUrl = "http://localhost:9200";
+//const elasticUrl = "http://host.docker.internal:9200";
+//const elasticUrl = "http://elasticsearch:9200";
 const multer = require('multer');
 const ejs = require('ejs')
 const esclient   = new Client({ node: elasticUrl });
@@ -12,8 +13,8 @@ const elasticsearch = require('elasticsearch');
 const app = express();
 
 const client = new elasticsearch.Client({
-  // host: 'http://localhost:9200'
-   host: 'http://host.docker.internal:9200'
+   host: 'http://localhost:9200'
+  // host: 'http://host.docker.internal:9200'
 });
 
 app.use(express.json())
@@ -38,8 +39,8 @@ app.get('/', (req, res) => {
 })
 
 app.get('/search', async (req, res) => {
-  const query = req.query.q;
-  if (query) {
+  const q = req.query.q;
+  if (q) {
     try {
       const results = await client.search({
         index: 'data',
@@ -47,7 +48,7 @@ app.get('/search', async (req, res) => {
         body: {
           query: {
             match: {
-              text: query
+              text: q
             }
           }
         }
@@ -58,9 +59,10 @@ app.get('/search', async (req, res) => {
       res.status(500).send('Error searching for documents.');
     }
   } else {
-    res.render('search', { docs });
+    res.render('search', { q });
   }
 });
+
 
 
 let docs = [];
@@ -71,8 +73,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
       const filePath = 'database/' + req.file.originalname;
        const response = await axios({
         method: 'put',
-        // url: 'http://localhost:9998/tika',
-         url: 'http://host.docker.internal:9998/tika',      
+         url: 'http://localhost:9998/tika',
+        // url: 'http://host.docker.internal:9998/tika',      
         data: fs.createReadStream(filePath),
         headers: { 'Content-Type': 'application/octet-stream',
                    'Accept': 'text/plain' }
@@ -97,7 +99,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
       } else {
         console.log('Document already exists');
       }
-      res.render('search', { q });
+
     } catch (error) {
       console.error(error);
     }

@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-search
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-search
+  template:
+    metadata:
+      labels:
+        app: app-search
+    spec:
+      containers:
+      - name: local-tika
+        image: ayushkatoch1717/search-app:v2
+        ports:
+        - containerPort: 3004
+        env:
+        - name: TIKA_HOST
+          value: tika
+        - name: TIKA_PORT
+          value: "9998"
+        - name: NODE_ENV
+          value: local
+        - name: ES_HOST
+          value: elasticsearch
+        - name: NODE_PORT
+          value: "3000"
+        - name: ELASTIC_URL
+          value: http://elasticsearch:9200
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3004
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        
+      - name: tika
+        image: apache/tika
+        ports:
+        - containerPort: 9998
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9998
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9998
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      - name: elasticsearch
+        image: elasticsearch:7.4.0
+        env:
+        - name: xpack.security.enabled
+          value: "false"
+        - name: discovery.type
+          value: single-node
+        ports:
+        - containerPort: 9200
+        - containerPort: 9300
+        # resources:
+        #   limits:
+        #     memory: "2Gi"
+        #     cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9200
+          initialDelaySeconds: 30
+          periodSeconds: 5
+
+      - name: kibana
+        image: kibana:7.4.0
+        env:
+        - name: ELASTICSEARCH_HOSTS
+          value: http://localhost:9200
+        ports:
+        - containerPort: 5601
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: app-search
+  ports:
+  - name: http
+    port: 3004
+    targetPort: 3004
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  tika-app-service
+spec:
+  selector:
+    app: app-search
+  ports:
+    - name: tika-port
+      port: 9998
+      targetPort: 9998
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elastic-app-service
+spec:
+  selector:
+    app: app-search
+  ports:
+    - name: elastic-port
+      port: 9200
+      targetPort: 9200
+  
