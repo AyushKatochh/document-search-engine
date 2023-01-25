@@ -19,7 +19,7 @@ services  :
       - elk      
   
   tika:
-    image : apache/tika
+    image : logicalspark/docker-tikaserver
     ports:
       - "9998:9998"
     networks:

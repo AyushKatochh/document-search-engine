@@ -11,7 +11,7 @@ RUN npm install express-fileupload
 RUN npm install ejs
 RUN npm install multer
 RUN npm install fs
-
+RUN npm install mime-types
 # EXPOSE 3004
 CMD [ "npm", "start" ]
 

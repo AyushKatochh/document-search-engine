@@ -9,6 +9,8 @@ const multer = require('multer');
 const ejs = require('ejs')
 const esclient   = new Client({ node: elasticUrl });
 const elasticsearch = require('elasticsearch');
+const mime = require('mime-types');
+const PdfExtractor = require('pdf-extractor').PdfExtractor;
 
 const app = express();
 
@@ -67,20 +69,38 @@ app.get('/search', async (req, res) => {
 
 let docs = [];
 let intervalId;
+let results;
 app.post('/upload', upload.single('file'), (req, res) => {
   intervalId=setInterval(async () => {
     try {
       const filePath = 'database/' + req.file.originalname;
+      const fileType = mime.lookup(filePath)
+
+      if(fileType === 'application/pdf') {
+  let pdfExtractor = new PdfExtractor('./database', {
+   
+    pageRange: [1,10]
+});
+ results = pdfExtractor.parse(filePath).then(function () {
+	console.log(results);
+  res.redirect("/")
+}).catch(function (err) {
+	console.error('Error: ' + err);
+});
+
+} else {
+
        const response = await axios({
         method: 'put',
          url: 'http://localhost:9998/tika',
-        // url: 'http://host.docker.internal:9998/tika',      
+         //url: 'http://host.docker.internal:9998/tika',      
         data: fs.createReadStream(filePath),
-        headers: { 'Content-Type': 'application/octet-stream',
-                   'Accept': 'text/plain' }
+        headers: { 'Content-Type': fileType,
+                   'Accept': 'text/plain',
+                    "X-Tika-OCRLanguage" :"eng" }
       });
-      
-      const results = await client.index({
+      console.log(response);
+      results = await client.index({
         index: 'data',
         type: 'text',
         id: req.file.originalname,  // use unique identifier
@@ -89,6 +109,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
         },
         refresh: "true" //immediately available for search
       });
+}
     
     if (docs.indexOf(results._id) === -1) {
         docs.push(results._id); //save the _id of the indexed document
