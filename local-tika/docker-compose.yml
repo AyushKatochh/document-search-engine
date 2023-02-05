@@ -1,7 +1,9 @@
 version : '3.3'
 services  :
   
-  local-tika:
+  docman-nodejs:
+    container_name: nodejs
+    image: ayushishu/docman-nodejs
     build: .
     links:
     - "tika"
@@ -19,7 +21,7 @@ services  :
       - elk      
   
   tika:
-    image : logicalspark/docker-tikaserver
+    image : apache/tika
     ports:
       - "9998:9998"
     networks:

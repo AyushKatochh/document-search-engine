@@ -1,0 +1,29 @@
+#version : 1.0 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docman
+spec:
+  selector:
+    matchLabels:
+      app: docman
+  template:
+    metadata:
+      labels:
+        app: docman
+    spec:
+      containers:
+      - name: docman-nodejs
+        image: ayushishu/docman-nodejs 
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3004
+      - name: data-extractor
+        image: apache/tika
+        resources:
+          limits:
+            memory: "2"
+            cpu:  

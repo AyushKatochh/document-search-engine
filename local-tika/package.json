@@ -12,18 +12,15 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.2.2",
-    "bull": "^4.10.2",
     "dotenv": "^16.0.3",
     "ejs": "^3.1.8",
     "elasticsearch": "^16.7.3",
     "express": "^4.18.2",
-    "express-fileupload": "^1.4.0",
     "mime-types": "^2.1.35",
     "multer": "^1.4.5-lts.1",
-    "path": "^0.12.7",
-    "pdf-extract": "^1.0.11",
-    "pdf-extractor": "^2.2.0",
-    "pdfbox": "^0.1.0",
+    "pdf-image": "^2.0.0",
+    "pdf-img-convert": "^1.1.1",
+    "pdf-poppler": "^0.2.1",
     "request": "^2.88.2"
   },
   "devDependencies": {

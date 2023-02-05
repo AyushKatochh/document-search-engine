@@ -1,10 +1,62 @@
 <head>
-   <link rel="stylesheet" type="text/css" href="/style.css">
+  <link rel="stylesheet" type="text/css" href="/style.css">
 </head>
-<form action="/upload" method="post" enctype="multipart/form-data">
-    <h1 class="center-text">FILE UPLOAD</h1>
-    
-        <input type="file" name="file" /><br>
-        <input type="submit" value="Upload" /><br>
-    
-</form>
+<h1 
+style="
+    color: #c7f0ef;
+    font-size: 28px;
+    font-family: 'Roboto';
+    display: flex;
+    margin: auto 0;
+    position: absolute;
+    left: 380px;
+    top: 77px;">UPLOAD <h1 style=" font-size: 28px;
+    font-family: 'Roboto';
+    display: flex;
+    margin: auto 0;
+    position: absolute;
+    left: 492px;
+    top: 77px;">FILES</h1></h1>
+<div class="form-container">
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    <h1 style="font-family: 'Roboto';" class="center-text">Drop your documents here or select</h1>
+    <a href="#" onclick="document.querySelector('input[type=file]').click()">Click here to upload files</a>
+    <input type="file" name="file" style="display:none"/>
+    <img src="1.png" style="margin-left: 36px">
+    <input type="submit" value="Upload" /><br>
+  </form>
+  <div class="right-container">
+  <% if (typeof indexedFiles != 'undefined' && indexedFiles.length > 0) { %>
+    <% for (let i = 0; i < indexedFiles.length; i++) { %>
+      <div class="uploaded-file">
+        <% switch (indexedFiles[i].fileType) {
+          case 'application/pdf':
+            %><img src="/pdf-logo.png" class="file-logo" /><%
+            break;
+          case 'application/msword':
+          case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+            %><img src="/doc-logo.png" class="file-logo" /><%
+            break;
+          case 'text/csv':
+            %><img src="/csv-logo.png" class="file-logo" /><%
+            break;
+          case 'text/plain':
+            %><img src="/txt-logo.png" class="file-logo" /><%
+            break;
+          case 'application/vnd.ms-powerpoint':
+          case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+            %><img src="/ppt-logo.png" class="file-logo" /><%
+            break;
+          default:
+            %><img src="/default-logo.png" class="file-logo" /><%
+            break;
+        } %>
+        <%= indexedFiles[i].fileName %>
+      </div>
+    <% } %>
+  <% } %>
+
+ 
+</div>
+
+</div>
