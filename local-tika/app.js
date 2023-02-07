@@ -5,7 +5,6 @@ const { Client } = require("elasticsearch");
 // const elasticUrl = "http://localhost:9200";
 const elasticUrl = "http://host.docker.internal:9200";
 //const elasticUrl = "http://elasticsearch:9200";
-const pdf = require('pdf-poppler');
 const multer = require('multer');
 const ejs = require('ejs')
 const esclient   = new Client({ node: elasticUrl });
@@ -21,7 +20,7 @@ const directoryPathImage = path.join(__dirname, 'ayush');
 const app = express();
 
 const client = new elasticsearch.Client({
-  //  host: 'http://localhost:9200'
+    // host: 'http://localhost:9200'
    host: 'http://host.docker.internal:9200'
 });
 
@@ -49,7 +48,9 @@ app.get('/', (req, res) => {
 app.get("/index", (req, res) => {
   res.render("index", {indexedFiles});
 })
-app.get('/search', async (req, res) => {
+
+
+app.get('/test', async (req, res) => {
   const q = req.query.q;
   if (q) {
     try {
@@ -64,15 +65,22 @@ app.get('/search', async (req, res) => {
           }
         }
       });
-      res.json(results.hits.hits);
+      const result = results.hits.hits[0];
+      const fileName = result._source.file_name;
+      const fileSymbol = result._source.file_logo;
+      // const lastModified = result._source.lastModified;
+      // const fileSize = result._source.fileSize;
+      res.render('test', { q, fileName, fileSymbol });
     } catch (error) {
       console.error(error);
       res.status(500).send('Error searching for documents.');
     }
   } else {
-    res.render('search', { q });
+    res.render('test', { q });
   }
 });
+
+
 
 
 let indexedFiles = [];
@@ -80,7 +88,7 @@ let docs = [];
 let intervalId;
 let results;
 app.post('/upload', upload.single('file'), (req, res) => {
-  setInterval(async () => {
+  // setInterval(async () => {
   try {
     const filePath = path.join(__dirname, 'database', req.file.originalname);
     const fileType = mime.lookup(filePath);
@@ -112,8 +120,9 @@ let fileLogo = '';
 
           axios({
             method: 'put',
-            url: 'http://localhost:9998/tika',
-            data: fs.createReadStream(pngFilePath),
+           // url: 'http://localhost:9998/tika',
+             url: 'http://host.docker.internal:9998/tika',
+             data: fs.createReadStream(pngFilePath),
             headers: {
               'Content-Type': mime.lookup(pngFilePath),
               Accept: 'text/plain',
@@ -142,7 +151,7 @@ let fileLogo = '';
                 fileLogo: fileLogo,
               });
               console.log(indexedFiles);
-              // res.redirect("/index")
+                  res.redirect("/index")
             })
             .catch((error) => {
               console.error('Error:', error);
@@ -154,7 +163,8 @@ let fileLogo = '';
     } else {
       axios({
         method: 'put',
-        url: 'http://localhost:9998/tika',
+      //  url: 'http://localhost:9998/tika',
+          url: 'http://host.docker.internal:9998/tika',
         data: fs.createReadStream(filePath),
         headers: {
           'Content-Type': fileType,
@@ -183,20 +193,20 @@ let fileLogo = '';
             fileLogo: fileLogo,
           });
           console.log(indexedFiles);
-          // res.redirect("/index")
+              res.redirect("/index")
     })
     .catch((error) => {
       console.error('Error:', error);
       console.log('Unable to upload file');
     });
 }
-//  res.render('index', { indexedFiles: indexedFiles });
   
   } catch (error) {
     console.error('Error:', error);
     console.log('Unable to upload file');
   }
-     }, 5000)
+    //  }, 10000)
+     
 });
 
 

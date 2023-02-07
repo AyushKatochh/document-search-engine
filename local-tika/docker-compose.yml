@@ -2,8 +2,7 @@ version : '3.3'
 services  :
   
   docman-nodejs:
-    container_name: nodejs
-    image: ayushishu/docman-nodejs
+    container_name: doman-nodejs
     build: .
     links:
     - "tika"

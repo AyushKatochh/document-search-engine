@@ -28,29 +28,31 @@ style="
   <div class="right-container">
   <% if (typeof indexedFiles != 'undefined' && indexedFiles.length > 0) { %>
     <% for (let i = 0; i < indexedFiles.length; i++) { %>
-      <div class="uploaded-file">
+      <div class="uploaded-file" style="  margin-left: 100px; font-size: 22px;
+    margin-top: 28px;">
         <% switch (indexedFiles[i].fileType) {
           case 'application/pdf':
-            %><img src="/pdf-logo.png" class="file-logo" /><%
+            %><img src="pdf.png" class="file-logo" /><%
             break;
           case 'application/msword':
           case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-            %><img src="/doc-logo.png" class="file-logo" /><%
+            %><img src="./word.png" class="file-logo" /><%
             break;
           case 'text/csv':
-            %><img src="/csv-logo.png" class="file-logo" /><%
+            %><img src="./csv.png" class="file-logo" /><%
             break;
           case 'text/plain':
-            %><img src="/txt-logo.png" class="file-logo" /><%
+            %><img src="/image.png" class="file-logo" /><%
             break;
           case 'application/vnd.ms-powerpoint':
           case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
-            %><img src="/ppt-logo.png" class="file-logo" /><%
+            %><img src="/ppt.png" class="file-logo" /><%
             break;
           default:
-            %><img src="/default-logo.png" class="file-logo" /><%
+            %><img src="image.png" class="file-logo" /><%
             break;
         } %>
+        <div class=""></div>
         <%= indexedFiles[i].fileName %>
       </div>
     <% } %>
