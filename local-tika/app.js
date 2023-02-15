@@ -3,8 +3,8 @@ const axios = require('axios');
 const fs = require('fs');
 const { Client } = require("elasticsearch");
 // const elasticUrl = "http://localhost:9200";
-const elasticUrl = "http://host.docker.internal:9200";
-//const elasticUrl = "http://elasticsearch:9200";
+// const elasticUrl = "http://host.docker.internal:9200";
+const elasticUrl = "http://elasticsearch:9200";
 const multer = require('multer');
 const ejs = require('ejs')
 const esclient   = new Client({ node: elasticUrl });
@@ -20,8 +20,8 @@ const directoryPathImage = path.join(__dirname, 'ayush');
 const app = express();
 
 const client = new elasticsearch.Client({
-    // host: 'http://localhost:9200'
-   host: 'http://host.docker.internal:9200'
+     host: 'http://localhost:9200'
+    //host: 'http://host.docker.internal:9200'
 });
 
 app.use(express.json())
@@ -110,61 +110,84 @@ let fileLogo = '';
         fileLogo = 'file.png';
         break;
 }
-    if (fileType === 'application/pdf') {
-      pdf2img.convert(filePath, { outputdir: directoryPathImage }).then(async (result) => {
-        for (let i = 0; i < result.length; i++) {
-          const pngFile = `${path.basename(filePath, '.pdf')}_${i}.png`;
+   if (fileType === 'application/pdf') {
+        pdf2img.convert(filePath, {outputdir: directoryPathImage}).then(async (result) => {
+            for (let i = 0; i <result.length; i++) {
+                 const pngFile = `${path.basename(filePath, '.pdf')}_${i}.png`;
           const pngFilePath = path.join(directoryPathImage, pngFile);
-
+          
           await fs.promises.writeFile(pngFilePath, result[i]);
 
           axios({
-            method: 'put',
-           // url: 'http://localhost:9998/tika',
-             url: 'http://host.docker.internal:9998/tika',
-             data: fs.createReadStream(pngFilePath),
-            headers: {
+            method:'put',
+            url: "http://localhost:9998/tika",
+            data: fs.createReadStream(pngFilePath),
+             headers: {
               'Content-Type': mime.lookup(pngFilePath),
               Accept: 'text/plain',
               'X-Tika-OCRLanguage': 'eng',
             },
           })
             .then(async (response) => {
-              const result = await client.index({
-                index: 'image',
-                type: 'document',
-                id: pngFile,
-                body: {
-                  text: response.data,
-                  file_type: fileType,
-                  file_name: req.file.originalname,
-                  file_logo: fileLogo,
-                },
-                refresh: 'true',
-              });
-              JSON.stringify(result)
-             console.log( `Data indexed: ${JSON.stringify(result)}`);
+                const textData = response.data;
 
-              indexedFiles.push({
-                fileName: req.file.originalname,
-                fileType: fileType,
-                fileLogo: fileLogo,
-              });
-              console.log(indexedFiles);
-                  res.redirect("/index")
+                axios({
+                    method: 'put',
+                    url: 'http://localhost:9998/meta',
+                    data: fs.createReadStream(filePath),
+                    headers: {
+                        'Content-Type': 'application/octet-stream',
+                    },
+                })
+                .then(async (metaResponse) => {
+                    const metaData = metaResponse.data;
+                    const result = await client.index({
+                        index: 'image',
+                        type: 'document',
+                        id: pngFile,
+                        body: {
+                            text: textData,
+                            meta: metaData,
+                            fileType: fileType,
+                            file_name: req.file.originalname,
+                            file_logo: fileLogo,
+                        },
+                        refresh: 'true'
+                    });
+
+                    console.log(`Data indexed: ${JSON.stringify(result)}`);
+                    
+
+                    indexedFiles.push({
+                        text: textData,
+                        meta: metaData,
+                        fileName: req.file.originalname,
+                        fileType: fileType,
+                        fileLogo: fileLogo
+                    });
+                    console.log(indexedFiles);
+                    fs.readFile('./metadata.json', (err, data) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+
+  const metadata = JSON.parse(data);
+  console.log(metadata);
+});
+                    res.redirect("/index");
+                })
+                .catch(err => {
+                    console.log(err);
+                })
             })
-            .catch((error) => {
-              console.error('Error:', error);
-              console.log('Unable to upload file');
-            });
-        }
-        // res.render('index', { indexedFiles: indexedFiles });
-      });
-    } else {
+            }
+        })
+    }  else {
       axios({
         method: 'put',
-      //  url: 'http://localhost:9998/tika',
-          url: 'http://host.docker.internal:9998/tika',
+          url: 'http://localhost:9998/tika',
+        //  url: 'http://host.docker.internal:9998/tika',
         data: fs.createReadStream(filePath),
         headers: {
           'Content-Type': fileType,
@@ -188,6 +211,7 @@ let fileLogo = '';
   console.log( `Data indexed: ${JSON.stringify(result)}`);
   JSON.stringify(result)
        indexedFiles.push({
+           // text: response.data,
             fileName: req.file.originalname,
             fileType: fileType,
             fileLogo: fileLogo,

@@ -1,0 +1,109 @@
+{
+  "jpg": {
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified",
+    "Exif IFD0:Model": "deviceModel",
+    "Exif IFD0:Make": "deviceManufacturer",
+    "geo:lat": "gpsLatitude",
+    "geo:long": "gpsLongitude"
+  },
+  "jpeg": {
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified",
+    "Exif IFD0:Model": "deviceModel",
+    "Exif IFD0:Make": "deviceManufacturer",
+    "geo:lat": "gpsLatitude",
+    "geo:long": "gpsLongitude"
+  },
+  "pdf": {
+    "pdf:docinfo:created": "dateCreated",
+    "pdf:docinfo:modified": "dateModified",
+    "Author": "author",
+    "title": "title"
+  },
+  "docx": {
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified",
+    "dc:creator": "creator",
+    "dc:title": "title"
+  },
+  "pptx": {
+    "dc:creator": "creator",
+    "dc:title": "title",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  },
+  "heic": {
+    "Exif IFD0:Make": "deviceManufacturer",
+    "Exif IFD0:Model": "deviceModel",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  },
+  "doc": {
+    "dc:creator": "creator",
+    "dc:title": "title",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  },
+  "ppt": {
+    "dc:creator": "creator",
+    "dc:title": "title",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  },
+  "rtf": {
+    "dc:creator": "creator",
+    "dc:title": "title",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  },
+  "xls": {
+    "dc:creator": "creator",
+    "dc:title": "title",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  },
+  "xlsx": {
+    "dc:creator": "creator",
+    "dc:title": "title",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  },
+  "eml": {
+    "dc:creator": "creator",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified",
+    "Message-To": "messageTo",
+    "dc:title": "title",
+    "dc:subject": "subject"
+  },
+  "ods": {
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  },
+  "memo": {
+    "dc:subject": "subject",
+    "dc:creator": "creator",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified",
+    "dc:title": "title"
+  },
+  "odt": {
+    "dc:creator": "creator",
+    "dc:title": "title",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  },
+  "pps": {
+    "dc:creator": "creator",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified",
+    "dc:title": "title"
+  },
+  "mp4": {
+    "geo:lat": "gpsLatitude",
+    "geo:long": "gpsLongitude",
+    "dcterms:created": "dateCreated",
+    "dcterms:modified": "dateModified"
+  }
+}
